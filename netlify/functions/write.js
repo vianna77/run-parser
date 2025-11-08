@@ -10,17 +10,15 @@ export async function handler(event) {
   const body = JSON.parse(event.body || '{}');
   const { text, tier, wave } = body;
 
-  // lê os dados existentes
-  const saved = await store.get('entries.json', { type: 'json' });
-  const data = Array.isArray(saved) ? saved : [];
+  // always ensure an array
+  let saved = await store.get('entries.json', { type: 'json' });
+  if (!Array.isArray(saved)) {
+    saved = [];
+  }
 
-  // adiciona nova entrada
-  data.push({ text, tier, wave });
+  saved.push({ text, tier, wave });
 
-  // salva novamente
-  await store.set('entries.json', JSON.stringify(data), {
-    metadata: { updated: new Date().toISOString() }
-  });
+  await store.set('entries.json', JSON.stringify(saved));
 
   return {
     statusCode: 200,
