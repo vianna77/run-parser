@@ -1,20 +1,23 @@
-import { getStore } from "@netlify/blobs";
+import { getStore } from '@netlify/blobs';
 
 export const handler = async () => {
   try {
-    const store = getStore("runparser");
+    const store = getStore({
+      name: 'runparser',
+      siteID: process.env.NETLIFY_BLOBS_SITE_ID,
+      token: process.env.NETLIFY_BLOBS_TOKEN
+    });
 
-    // Read JSON. If empty, return an array.
-    const data = await store.get("data.json", { type: "json" });
+    const data = await store.get('data', { type: 'json' });
 
     return {
       statusCode: 200,
-      body: JSON.stringify(Array.isArray(data) ? data : [])
+      body: JSON.stringify(data || [])
     };
-  } catch (err) {
+  } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message })
+      body: JSON.stringify({ error: error.message })
     };
   }
 };
