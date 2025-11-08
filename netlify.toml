@@ -1,2 +1,3 @@
 [functions]
-included_files = ["data/data.json"]
+node_bundler = "esbuild"
+external_node_modules = ["@netlify/blobs"]
