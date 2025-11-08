@@ -1,21 +1,15 @@
-const fs = require("fs");
-const path = require("path");
+import { getStore } from '@netlify/blobs';
 
-exports.handler = async () => {
-  try {
-    const filePath = path.join(__dirname, "../../data/data.json");
-    const content = fs.readFileSync(filePath, "utf8");
-    const json = JSON.parse(content);
+export async function handler() {
+  const store = getStore('app-data');
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(json)
-    };
+  // pega o blob inteiro
+  const saved = await store.get('entries.json', { type: 'json' });
 
-  } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: String(err) })
-    };
-  }
-};
+  const data = Array.isArray(saved) ? saved : [];
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(data)
+  };
+}
