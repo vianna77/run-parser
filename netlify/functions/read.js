@@ -1,17 +1,22 @@
-import { getStore } from '@netlify/blobs';
+import { blobs } from '@netlify/blobs';
 
 export async function handler() {
-  const store = getStore('app-data');
+  try {
+    const store = blobs.getStore('app-data');
 
-  let saved = await store.get('entries.json', { type: 'json' });
+    const raw = await store.get('entries.json', { type: 'json' });
 
-  // If nothing saved yet, force empty array
-  if (!Array.isArray(saved)) {
-    saved = [];
+    const data = Array.isArray(raw) ? raw : [];
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data)
+    };
+
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err.message })
+    };
   }
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(saved)
-  };
 }
