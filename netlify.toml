@@ -1,3 +1,10 @@
+[build]
+functions = "netlify/functions"
+
 [functions]
 node_bundler = "esbuild"
+included_files = ["netlify/functions/**"]
 external_node_modules = ["@netlify/blobs"]
+
+[functions."*"]
+node_runtime = "nodejs20.x"
