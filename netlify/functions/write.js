@@ -1,31 +1,29 @@
-const fs = require("fs");
-const path = require("path");
+import { getStore } from '@netlify/blobs';
 
-exports.handler = async (event) => {
-  try {
-    const filePath = path.join(__dirname, "../../data/data.json");
-    const body = JSON.parse(event.body);
-
-    const content = fs.readFileSync(filePath, "utf8");
-    const json = JSON.parse(content);
-
-    json.push({
-      text: body.text,
-      tier: body.tier,
-      wave: body.wave
-    });
-
-    fs.writeFileSync(filePath, JSON.stringify(json, null, 2));
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ ok: true })
-    };
-
-  } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: String(err) })
-    };
+export async function handler(event) {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method not allowed' };
   }
-};
+
+  const store = getStore('app-data');
+
+  const body = JSON.parse(event.body || '{}');
+  const { text, tier, wave } = body;
+
+  // lê os dados existentes
+  const saved = await store.get('entries.json', { type: 'json' });
+  const data = Array.isArray(saved) ? saved : [];
+
+  // adiciona nova entrada
+  data.push({ text, tier, wave });
+
+  // salva novamente
+  await store.set('entries.json', JSON.stringify(data), {
+    metadata: { updated: new Date().toISOString() }
+  });
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ ok: true })
+  };
+}
