@@ -1,7 +1,8 @@
 {
-  "name": "runparser",
+  "name": "run-parser",
   "version": "1.0.0",
+  "type": "module",
   "dependencies": {
-    "@netlify/blobs": "^7.0.0"
+    "@netlify/blobs": "^6.5.0"
   }
 }
