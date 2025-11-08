@@ -1,28 +1,26 @@
-import { getStore } from "@netlify/blobs";
+import { getStore } from '@netlify/blobs';
 
 export const handler = async (event) => {
   try {
-    const entry = JSON.parse(event.body);
+    const store = getStore({
+      name: 'runparser',
+      siteID: process.env.NETLIFY_BLOBS_SITE_ID,
+      token: process.env.NETLIFY_BLOBS_TOKEN
+    });
 
-    const store = getStore("runparser");
+    const body = JSON.parse(event.body || '{}');
+    const newData = body.data || [];
 
-    // Load current JSON
-    const data = await store.get("data.json", { type: "json" }) || [];
-
-    // Add new entry
-    data.push(entry);
-
-    // Save new JSON atomically
-    await store.setJSON("data.json", data);
+    await store.set('data', JSON.stringify(newData));
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true })
+      body: JSON.stringify({ ok: true })
     };
-  } catch (err) {
+  } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message })
+      body: JSON.stringify({ error: error.message })
     };
   }
 };
