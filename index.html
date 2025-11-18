@@ -34,7 +34,9 @@
 <script>
 async function loadData() {
   const res = await fetch('/.netlify/functions/read');
-  const data = await res.json();
+  let data = await res.json();
+
+  data = data.reverse();  // ordem decrescente
 
   const body = document.getElementById('tableBody');
   body.innerHTML = '';
@@ -42,10 +44,13 @@ async function loadData() {
   data.forEach((item, idx) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${idx + 1}</td>
+      <td>${data.length - idx}</td>
       <td>${item.tier}</td>
       <td>${item.wave}</td>
-      <td><button onclick="copyText(${idx})">Copiar</button></td>
+      <td>
+        <button onclick="copyText(${idx})">Copiar</button>
+        <button onclick="deleteEntry(${idx})">Deletar</button>
+      </td>
     `;
     body.appendChild(tr);
   });
@@ -81,8 +86,26 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
 async function copyText(idx) {
   const res = await fetch('/.netlify/functions/read');
-  const data = await res.json();
+  let data = await res.json();
+  data = data.reverse();
   navigator.clipboard.writeText(data[idx].text);
+}
+
+async function deleteEntry(idx) {
+  const res = await fetch('/.netlify/functions/read');
+  let data = await res.json();
+
+  data = data.reverse();   // manter alinhamento com o que o usuário vê
+
+  data.splice(idx, 1);
+
+  await fetch('/.netlify/functions/write', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ full: data })
+  });
+
+  loadData();
 }
 
 loadData();

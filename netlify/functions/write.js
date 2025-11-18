@@ -14,9 +14,18 @@ export const handler = async (event) => {
       token: process.env.NETLIFY_BLOBS_TOKEN
     });
 
-    const body = JSON.parse(event.body);
+    // PUT → sobrescreve tudo (usado pelo botão Deletar)
+    if (event.httpMethod === "PUT") {
+      const body = JSON.parse(event.body);
+      await store.setJSON('data', body.full);
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ ok: true })
+      };
+    }
 
-    // Read existing data
+    // POST → adiciona um item novo
+    const body = JSON.parse(event.body);
     const currentData = (await store.get('data', { type: 'json' })) || [];
 
     // Append new entry
