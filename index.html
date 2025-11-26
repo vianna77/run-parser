@@ -44,7 +44,7 @@ async function loadData() {
   data.forEach((item, idx) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${data.length - idx}</td>
+      <td>${idx + 1}</td>
       <td>${item.tier}</td>
       <td>${item.wave}</td>
       <td>
